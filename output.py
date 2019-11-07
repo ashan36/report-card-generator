@@ -1,13 +1,15 @@
 import data
 
 class ReportOutput:
-    outputPath = './report-card.txt'
+    outputPath = '.'
 
     @classmethod
     def saveReport(cls):
-        f = open(cls.outputPath, "w")
-        f.write(data.DataStore.bulidReport())
-        f.close()
-
-
-    
+        try:
+            f = open(cls.outputPath + "/report-card.txt", "w")
+            f.write(data.DataStore.bulidReport())
+            f.close()
+            print("Output successful")
+        except:
+            print("error writing output file")
+            quit()

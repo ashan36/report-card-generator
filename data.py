@@ -84,38 +84,55 @@ class DataStore: #stores and manipulates data objects on a class level
 
 
 class DataParser: #Used to load data from CSV files into the DataStore
-    defaultLoc = './resources'
+    inputPath = './resources'
 
-    def loadAll(self, pathString): #refactor this to multiple method calls
-        with open(pathString + '/students.csv', newline='') as studentsFile:
-            studentsReader = csv.reader(studentsFile)
-            for row in studentsReader:
-                if studentsReader.line_num == 1: #throw away header
-                    continue
-                else:
-                    DataStore.students[row[0]] = Student(row[0], row[1])
+    @classmethod
+    def loadAll(cls):
+            
+        try:
+            with open(cls.inputPath + '/students.csv', newline='') as studentsFile:
+                studentsReader = csv.reader(studentsFile)
+                for row in studentsReader:
+                    if studentsReader.line_num == 1: #throw away header
+                        continue
+                    else:
+                        DataStore.students[row[0]] = Student(row[0], row[1])
+        except:
+            print("error opening {}/students.csv".format(cls.inputPath))
+            quit()
+            
+        try:
+            with open(cls.inputPath + '/courses.csv', newline='') as coursesFile:
+                coursesReader = csv.reader(coursesFile)
+                for row in coursesReader:
+                    if coursesReader.line_num == 1: #throw away header
+                        continue
+                    else:
+                        DataStore.courses[row[0]] = Course(row[0], row[1], row[2])
+        except:
+            print("error opening {}/courses.csv".format(cls.inputPath))
+            quit()
 
-        with open(pathString + '/courses.csv', newline='') as coursesFile:
-            coursesReader = csv.reader(coursesFile)
-            for row in coursesReader:
-                if coursesReader.line_num == 1: #throw away header
-                    continue
-                else:
-                    DataStore.courses[row[0]] = Course(row[0], row[1], row[2])
+        try:
+            with open(cls.inputPath + '/tests.csv', newline='') as testsFile:
+                testsReader = csv.reader(testsFile)
+                for row in testsReader:
+                    if testsReader.line_num == 1: #throw away header
+                        continue
+                    else:
+                        DataStore.tests[row[0]] = Test(row[0], row[1], row[2])
+        except:
+            print("error opening {}/tests.csv".format(cls.inputPath))
+            quit()
 
-        with open(pathString + '/tests.csv', newline='') as testsFile:
-            testsReader = csv.reader(testsFile)
-            for row in testsReader:
-                if testsReader.line_num == 1: #throw away header
-                    continue
-                else:
-                    DataStore.tests[row[0]] = Test(row[0], row[1], row[2])
-
-        with open(pathString + '/marks.csv', newline='') as marksFile:
-            marksReader = csv.reader(marksFile)
-            for row in marksReader:
-                if marksReader.line_num == 1: #throw away header
-                    continue
-                else:
-                    DataStore.tests[row[0]].addMark(row[1], row[2])
-
+        try:
+            with open(cls.inputPath + '/marks.csv', newline='') as marksFile:
+                marksReader = csv.reader(marksFile)
+                for row in marksReader:
+                    if marksReader.line_num == 1: #throw away header
+                        continue
+                    else:
+                        DataStore.tests[row[0]].addMark(row[1], row[2])
+        except:
+            print("error opening {}/marks.csv".format(cls.inputPath))
+            quit()
