@@ -5,24 +5,24 @@ class Student:
     def __init__(self, id, name):
         self.id = id
         self.name = name
-        self.grades = {}#k: courseId, v: grade (mark * weight)/100
+        self.grades = {}#k: courseId, v: grade = (mark * weight)/100
 
     def computeGrades(self):
-        for test in DataParser.tests:
-            if self.id in DataParser.tests[test].marks:
-                self.grades[DataParser.tests[test].courseId] = 0
+        for test in DataStore.tests:
+            if self.id in DataStore.tests[test].marks: #if student took this test
+                if DataStore.tests[test].courseId in self.grades: #if already stored in grades dict, accumulate
+                    self.grades[DataStore.tests[test].courseId] += float(DataStore.tests[test].marks[self.id]) * float(DataStore.tests[test].weight) /100
+                else: #otherwise initialize to 0 and add
+                    self.grades[DataStore.tests[test].courseId] = 0
+                    self.grades[DataStore.tests[test].courseId] += float(DataStore.tests[test].marks[self.id]) * float(DataStore.tests[test].weight) /100
             
-        for test in DataParser.tests:
-            if self.id in DataParser.tests[test].marks:
-                self.grades[DataParser.tests[test].courseId] += float(DataParser.tests[test].marks[self.id]) * float(DataParser.tests[test].weight) /100
-
     def computeAverage(self):
         average = 0.0
         for grade in self.grades:
             average += self.grades[grade]
 
         average /= len(self.grades)
-        return average
+        self.average = average
 
     def print(self):
         print("StudentID:", self.id, "StudentName:", self.name, "\nGrades:", self.grades)
@@ -50,11 +50,41 @@ class Test:
     def print(self):
         print("TestID:", self.testId, "CourseID:", self.courseId, "Weight:", self.weight, "\nMarks", self.marks)
 
-class DataParser:
-    defaultLoc = './resources'
+class DataStore: #stores and manipulates data objects on a class level
     students = {} #dict of student objects where the student ID is the key
     courses = {} #dict of course objects where the course ID is the key
     tests = {} #dict of test objects combining marks and tests data, test id is the key
+
+    @classmethod
+    def clearData(cls):
+        cls.students.clear()
+        cls.courses.clear()
+        cls.tests.clear()
+
+    @classmethod
+    def computeAll(cls):
+        for student in cls.students:
+            cls.students[student].computeGrades()
+            cls.students[student].computeAverage()
+
+    @classmethod
+    def bulidReport(cls):
+        outputString = ""
+        for student in cls.students.values():
+            outputString += "".join(("Student Id: {}, name: {}\n".format(student.id, student.name),
+            "Total Average:\t{:4.2f}%\n".format(student.average)))
+
+            for course in student.grades:
+                outputString += "".join(("\n\t\tCourse: {}, Teacher: {}\n".format(cls.courses[course].name, cls.courses[course].teacher),
+                "\t\tFinal Grade:\t{:4.2f}%\n".format(student.grades[course])))
+        
+            outputString += "\n\n"
+        
+        return outputString
+
+
+class DataParser: #Used to load data from CSV files into the DataStore
+    defaultLoc = './resources'
 
     def loadAll(self, pathString): #refactor this to multiple method calls
         with open(pathString + '/students.csv', newline='') as studentsFile:
@@ -63,7 +93,7 @@ class DataParser:
                 if studentsReader.line_num == 1: #throw away header
                     continue
                 else:
-                    DataParser.students[row[0]] = Student(row[0], row[1])
+                    DataStore.students[row[0]] = Student(row[0], row[1])
 
         with open(pathString + '/courses.csv', newline='') as coursesFile:
             coursesReader = csv.reader(coursesFile)
@@ -71,7 +101,7 @@ class DataParser:
                 if coursesReader.line_num == 1: #throw away header
                     continue
                 else:
-                    DataParser.courses[row[0]] = Course(row[0], row[1], row[2])
+                    DataStore.courses[row[0]] = Course(row[0], row[1], row[2])
 
         with open(pathString + '/tests.csv', newline='') as testsFile:
             testsReader = csv.reader(testsFile)
@@ -79,7 +109,7 @@ class DataParser:
                 if testsReader.line_num == 1: #throw away header
                     continue
                 else:
-                    DataParser.tests[row[0]] = Test(row[0], row[1], row[2])
+                    DataStore.tests[row[0]] = Test(row[0], row[1], row[2])
 
         with open(pathString + '/marks.csv', newline='') as marksFile:
             marksReader = csv.reader(marksFile)
@@ -87,5 +117,5 @@ class DataParser:
                 if marksReader.line_num == 1: #throw away header
                     continue
                 else:
-                    DataParser.tests[row[0]].addMark(row[1], row[2])
+                    DataStore.tests[row[0]].addMark(row[1], row[2])
 

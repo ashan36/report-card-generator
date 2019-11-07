@@ -1,18 +1,13 @@
 import data
+import output
 import os
 import argparse
 
-tester = data.DataParser()
-tester.loadAll(data.DataParser.defaultLoc)
+tester = data.DataStore()
+parser = data.DataParser()
+parser.loadAll(data.DataParser.defaultLoc)
+tester.computeAll()
 
-for id in tester.tests:
-    tester.tests[id].print()
+print(tester.bulidReport())
 
-for id in tester.students:
-    tester.students[id].computeGrades()
-    tester.students[id].print()
-    print(str(tester.students[id].computeAverage()))
-
-for id in tester.courses:
-    tester.courses[id].print()
-    
+output.ReportOutput.saveReport()
