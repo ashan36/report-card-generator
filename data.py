@@ -7,7 +7,7 @@ class Student:
         self.name = name
         self.grades = {}#k: courseId, v: grade = (mark * weight)/100
 
-    def computeGrades(self):
+    def computeGrades(self): #requires a filled DataStore
         for test in DataStore.tests:
             if self.id in DataStore.tests[test].marks: #if student took this test
                 if DataStore.tests[test].courseId in self.grades: #if already stored in grades dict, accumulate
@@ -24,18 +24,12 @@ class Student:
         average /= len(self.grades)
         self.average = average
 
-    def print(self):
-        print("StudentID:", self.id, "StudentName:", self.name, "\nGrades:", self.grades)
-
 
 class Course:
     def __init__(self, id, name, teacher):
         self.id = id
         self.name = name
         self.teacher = teacher
-
-    def print(self):
-        print("CourseID:", self.id, "CourseName:", self.name, "CourseTeacher:", self.teacher)
 
 class Test:
     def __init__(self, testId, courseId, weight):
@@ -47,19 +41,10 @@ class Test:
     def addMark(self, student, mark):
         self.marks[student] = mark
 
-    def print(self):
-        print("TestID:", self.testId, "CourseID:", self.courseId, "Weight:", self.weight, "\nMarks", self.marks)
-
 class DataStore: #stores and manipulates data objects on a class level
     students = {} #dict of student objects where the student ID is the key
     courses = {} #dict of course objects where the course ID is the key
     tests = {} #dict of test objects combining marks and tests data, test id is the key
-
-    @classmethod
-    def clearData(cls):
-        cls.students.clear()
-        cls.courses.clear()
-        cls.tests.clear()
 
     @classmethod
     def computeAll(cls):
