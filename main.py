@@ -3,6 +3,8 @@ from data import DataStore
 from output import ReportOutput
 import os
 import argparse
+import exceptions
+import traceback
   
 def valid_path(path): 
     # validate file path 
@@ -33,7 +35,18 @@ def run(args):
             quit()
 
     DataParser.loadAll()
-    DataStore.computeAll()
+
+    try: 
+        DataStore.validateTestWeights()
+        DataStore.computeAll()
+    except exceptions.InvalidCourseWeightError as e:
+        print(e.message)
+        quit()
+    except: #Catch any other error that arises and print the exception
+        print("Unknown error occured while parsing data")
+        traceback.print_exc()
+        quit()
+
     ReportOutput.saveReport()
 
 if __name__ == "__main__":
